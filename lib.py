@@ -1,5 +1,3 @@
-import platform
-import os
 import os
 import platform
 import m3u8
