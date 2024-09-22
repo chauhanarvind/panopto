@@ -4,8 +4,8 @@ import lib
 
 app = Flask(__name__)
 
-# Enable CORS for all routes
-CORS(app, resources={r"/*": {"origins": "https://panopto-nextjs.vercel.app/"}})
+# Enable CORS for all routes, including handling preflight requests (OPTIONS)
+CORS(app, resources={r"/*": {"origins": "https://panopto-nextjs.vercel.app"}})
 
 @app.route('/', methods=['POST'])
 def download_video_mp4():
