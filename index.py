@@ -19,7 +19,7 @@ def download_video_mp4():
     print("inside index.py")
     
     try:
-        lib.getVideoType(url, cookie)
+        lib.getVideoType(url)
         return jsonify({'message': 'Video downloaded successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
