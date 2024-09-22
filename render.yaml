@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: my-flask-app
+    env: python
+    buildCommand: |
+      apt-get update && apt-get install -y ffmpeg
+      pip install -r requirements.txt
+    startCommand: gunicorn index:app # Replace app:app with your file and Flask instance
+    envVars:
+      - key: FLASK_ENV
+        value: production
