@@ -3,6 +3,11 @@ import platform
 import subprocess
 import m3u8
 import mp4
+import subprocess
+import lib
+import yt_dlp
+import tempfile
+import os
 
 def getVideoType(url):
     _, extension = os.path.splitext(url)
@@ -33,3 +38,32 @@ def checkFileExists(save_path, output_file):
         counter += 1
     
     return new_output_path
+
+def get_cookies_from_chrome():
+    """Use yt-dlp to extract cookies from the logged-in Chrome session."""
+    ydl_opts = {
+        'cookiesfrombrowser': 'chrome',  # Extract cookies from Chrome
+    }
+
+    # Use tempfile to create a temporary file for cookies
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.txt') as tmp_file:
+        cookies_file = tmp_file.name  # Get the path to the temporary file
+
+    # Use yt-dlp to extract cookies
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        try:
+            # Extract cookies and save to a variable
+            cookies_data = ydl._get_cookies_from_browser('chrome')
+            
+            # Write cookies to the cookies.txt file
+            with open(cookies_file, 'w') as f:
+                for cookie in cookies_data:
+                    f.write(f"{cookie.name}\t{cookie.value}\n")
+
+            print(f"Cookies saved to {cookies_file}")
+
+        except Exception as e:
+            print(f"Error extracting cookies: {e}")
+            return None
+
+    return cookies_file

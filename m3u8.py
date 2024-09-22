@@ -1,36 +1,8 @@
 import subprocess
 import lib
 import yt_dlp
-
-def get_cookies_from_chrome():
-    """Use yt-dlp to extract cookies from the logged-in Chrome session."""
-    ydl_opts = {
-        'cookiesfrombrowser': 'chrome',  # Extract cookies from Chrome
-    }
-
-    # Temporary file to save cookies
-    cookies_file = '/tmp/cookies.txt'
-
-    # Use yt-dlp to save the cookies to a file
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        try:
-            ydl.download(['about:blank'])  # Get cookies without downloading anything
-        except Exception:
-            pass  # Ignore errors since we're just using it to extract cookies
-
-    return cookies_file
-
-def format_cookies_for_ffmpeg(cookies_file):
-    """Convert the cookies.txt file into a proper Cookie header format for FFmpeg."""
-    cookies_header = ""
-    with open(cookies_file, 'r') as file:
-        for line in file:
-            if not line.startswith('#') and len(line.split('\t')) >= 7:
-                # Extract the cookie name and value from the cookies.txt file
-                domain, flag, path, secure, expiration, name, value = line.strip().split('\t')
-                cookies_header += f"{name}={value}; "
-
-    return cookies_header.strip()
+import tempfile
+import os
 
 def download_with_ffmpeg(m3u8_url, cookies_from_browser=True):
     try:
@@ -43,10 +15,13 @@ def download_with_ffmpeg(m3u8_url, cookies_from_browser=True):
 
         # If cookies are to be extracted from the browser (Chrome), do so
         cookie_header = None
+        cookies_file = None  # Initialize cookies_file as None
         if cookies_from_browser:
-            cookies_file = get_cookies_from_chrome()  # Get cookies from Chrome
-            if cookies_file:
-                cookie_header = format_cookies_for_ffmpeg(cookies_file)  # Format cookies
+            cookies_file = lib.get_cookies_from_chrome()  # Get cookies from Chrome
+            print(cookies_file)
+            if cookies_file:  # Ensure cookies_file is valid before proceeding
+                with open(cookies_file, 'r') as file:
+                    cookie_header = file.read()
 
         # Construct ffmpeg command with cookies (if provided)
         command = [
@@ -65,5 +40,14 @@ def download_with_ffmpeg(m3u8_url, cookies_from_browser=True):
         subprocess.run(command, check=True)
         print(f"Video downloaded successfully as {new_output_path}")
 
+        # Cleanup: Delete the temporary cookies file if it exists
+        if cookies_file and os.path.exists(cookies_file):
+            os.remove(cookies_file)
+            print(f"Temporary cookies file {cookies_file} deleted")
+
     except subprocess.CalledProcessError as e:
         print(f"Error during video download: {e}")
+
+    except Exception as general_error:
+        print(f"An unexpected error occurred: {general_error}")
+
