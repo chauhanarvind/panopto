@@ -6,9 +6,7 @@ def download_with_ffmpeg(m3u8_url):
         print("inside ffmpeg")
         output_file = 'output_file.mp4'
         save_path = lib.get_downloads_folder() or './'
-        # Provide the full path to the ffmpeg executable
-        ffmpeg_path = r'C:\Users\Arvind\Downloads\ffmpeg-7.0.2-full_build\ffmpeg-7.0.2-full_build\bin\ffmpeg.exe'  # Replace with the actual path
-
+        
         new_output_path = lib.checkFileExists(save_path, output_file)
 
         # Construct ffmpeg command
