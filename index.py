@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import test1
+import lib
 
 app = Flask(__name__)
 
@@ -18,7 +18,7 @@ def download_video_mp4():
     print("inside index.py")
     
     try:
-        test1.getVideoType(url)
+        lib.getVideoType(url)
         return jsonify({'message': 'Video downloaded successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
