@@ -1,19 +1,20 @@
-import lib
 import yt_dlp
+import lib
+import os
 
 def download_video_mp4(url):
     """Download video using cookies from the Chrome session."""
     try:
-        # Get the save path for the download, or use the current directory if none found
-        save_path = lib.get_downloads_folder() or './'
-        new_output_path = lib.checkFileExists(save_path, 'output.mp4')  # Ensure unique file name
+        save_path = './'
+        output_file = 'output_file.mp4'
+        new_output_path = os.path.join(save_path, output_file)  # File path without checking if it exists
 
         # Get cookies from Chrome
         cookies_file = lib.get_cookies_from_chrome()
 
         if not cookies_file:
             print("Failed to extract cookies, aborting download.")
-            return
+            return None
 
         # yt-dlp options
         ydl_opts = {
@@ -27,8 +28,10 @@ def download_video_mp4(url):
                 # Download the video from the provided URL
                 ydl.download([url])
                 print(f"Video downloaded successfully to {new_output_path}")
+                return new_output_path  # Return the file path
             except Exception as e:
                 print(f"Error downloading video: {e}")
+                return None
 
         # Cleanup: Delete the temporary cookies file
         if os.path.exists(cookies_file):
@@ -37,3 +40,4 @@ def download_video_mp4(url):
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+        return None

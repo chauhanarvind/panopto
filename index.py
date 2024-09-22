@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import lib
+import os
 
 app = Flask(__name__)
 
-# Disable CORS by allowing requests from all origins
+# Enable CORS
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/', methods=['POST'])
@@ -19,8 +20,22 @@ def download_video_mp4():
     
     try:
         # Call getVideoType in lib.py, which will handle the video download
-        lib.getVideoType(url)
-        return jsonify({'message': 'Video downloaded successfully'}), 200
+        file_path = lib.getVideoType(url)
+
+        if file_path:
+            # Serve the file to the client
+            response = send_file(file_path, as_attachment=True)
+
+            # After serving the file, delete it from the server
+            try:
+                os.remove(file_path)
+                print(f"File {file_path} deleted from server")
+            except Exception as e:
+                print(f"Error deleting file: {e}")
+            
+            return response
+        else:
+            return jsonify({'error': 'File not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

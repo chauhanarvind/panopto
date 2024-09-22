@@ -1,25 +1,20 @@
 import subprocess
-import lib
-import yt_dlp
-import tempfile
 import os
+import lib
 
 def download_with_ffmpeg(m3u8_url, cookies_from_browser=True):
     try:
         print("inside ffmpeg")
         output_file = 'output_file.mp4'
-        save_path = lib.get_downloads_folder() or './'
-        
-        # New output path (ensuring the file doesn't already exist)
-        new_output_path = lib.checkFileExists(save_path, output_file)
+        save_path = './'  # Save to current directory
+        new_output_path = os.path.join(save_path, output_file)
 
         # If cookies are to be extracted from the browser (Chrome), do so
         cookie_header = None
-        cookies_file = None  # Initialize cookies_file as None
+        cookies_file = None
         if cookies_from_browser:
             cookies_file = lib.get_cookies_from_chrome()  # Get cookies from Chrome
-            print(cookies_file)
-            if cookies_file:  # Ensure cookies_file is valid before proceeding
+            if cookies_file:
                 with open(cookies_file, 'r') as file:
                     cookie_header = file.read()
 
@@ -45,9 +40,12 @@ def download_with_ffmpeg(m3u8_url, cookies_from_browser=True):
             os.remove(cookies_file)
             print(f"Temporary cookies file {cookies_file} deleted")
 
+        return new_output_path  # Return the path to the downloaded video
+
     except subprocess.CalledProcessError as e:
         print(f"Error during video download: {e}")
+        return None
 
     except Exception as general_error:
         print(f"An unexpected error occurred: {general_error}")
-
+        return None
