@@ -9,7 +9,7 @@ def getVideoType(url):
     print(f"File extension: {extension}")
     
     if extension == '.m3u8':
-        m3u8.download_with_ffmpeg(url)
+        m3u8.download_with_ffmpeg(url,True)
     else:
         mp4.download_video_mp4(url)
 

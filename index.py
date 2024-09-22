@@ -10,7 +10,8 @@ CORS(app)
 @app.route('/', methods=['POST'])
 def download_video_mp4():
     data = request.json  
-    url = data.get('url')  
+    url = data.get('url')
+    cookie = data.get('cookie')  
 
     if not url:
         return jsonify({'error': 'No URL provided'}), 400
@@ -18,7 +19,7 @@ def download_video_mp4():
     print("inside index.py")
     
     try:
-        lib.getVideoType(url)
+        lib.getVideoType(url, cookie)
         return jsonify({'message': 'Video downloaded successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
