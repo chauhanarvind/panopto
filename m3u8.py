@@ -14,14 +14,23 @@ def get_cookies_from_chrome():
     # Use yt-dlp to save the cookies to a file
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
-            # This is a hack: yt-dlp normally expects to download something
-            # but here we are just using it to get cookies.
-            # So we invoke it on a simple URL like 'about:blank'.
-            ydl.download(['about:blank'])
+            ydl.download(['about:blank'])  # Get cookies without downloading anything
         except Exception:
-            pass  # We ignore the exception because we're just using it to get cookies
+            pass  # Ignore errors since we're just using it to extract cookies
 
     return cookies_file
+
+def format_cookies_for_ffmpeg(cookies_file):
+    """Convert the cookies.txt file into a proper Cookie header format for FFmpeg."""
+    cookies_header = ""
+    with open(cookies_file, 'r') as file:
+        for line in file:
+            if not line.startswith('#') and len(line.split('\t')) >= 7:
+                # Extract the cookie name and value from the cookies.txt file
+                domain, flag, path, secure, expiration, name, value = line.strip().split('\t')
+                cookies_header += f"{name}={value}; "
+
+    return cookies_header.strip()
 
 def download_with_ffmpeg(m3u8_url, cookies_from_browser=True):
     try:
@@ -37,8 +46,7 @@ def download_with_ffmpeg(m3u8_url, cookies_from_browser=True):
         if cookies_from_browser:
             cookies_file = get_cookies_from_chrome()  # Get cookies from Chrome
             if cookies_file:
-                with open(cookies_file, 'r') as file:
-                    cookie_header = file.read()
+                cookie_header = format_cookies_for_ffmpeg(cookies_file)  # Format cookies
 
         # Construct ffmpeg command with cookies (if provided)
         command = [
