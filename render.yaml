@@ -5,7 +5,7 @@ services:
     buildCommand: |
       apt-get update && apt-get install -y ffmpeg
       pip install -r requirements.txt
-    startCommand: gunicorn index:app # Replace app:app with your file and Flask instance
+    startCommand: gunicorn index:app
     envVars:
       - key: FLASK_ENV
         value: production
